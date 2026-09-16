@@ -1,0 +1,6 @@
+{
+  "name": "دکتۆر بەستە",
+  "description": "ڕاوێژکاری دەروونی ژیری دەستکرد بۆ هاوکاری دەروونی و تێگەیشتن لە هەست و بیرکردنەوە",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
