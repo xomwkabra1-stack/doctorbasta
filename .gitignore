@@ -1,18 +1,37 @@
+# Built application files
+*.apk
+*.aar
+*.aab
+
+# Gradle files
+.gradle/
+build/
+app/build/
+.kotlin/
+
+# Android Studio & IDE
+.idea/
 *.iml
-.gradle
-.kotlin
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+*.ipr
+*.iws
 .DS_Store
-/build
 /captures
 .externalNativeBuild
 .cxx
+
+# Sensitive & Secret Files (Android Keystore / API Keys)
+*.keystore
+!debug.keystore
+*.jks
+*.key
+*.p12
+*.pem
 local.properties
 .env
-debug.keystore
+.env.*
+!.env.example
+google-services.json
+dr_basta_secure_prefs.xml
+
+# Log files
+*.log

@@ -33,13 +33,20 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SelfImprovement
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Spa
+import com.example.viewmodel.AppScreen
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -47,11 +54,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -105,6 +114,7 @@ fun ChatScreen(
     val showAbout by viewModel.showAboutDialog.collectAsStateWithLifecycle()
 
     var showMenu by remember { mutableStateOf(false) }
+    var showNewChatDialog by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
     // Auto-scroll to bottom when new messages arrive or when loading starts
@@ -169,6 +179,18 @@ fun ChatScreen(
                         }
                     },
                     actions = {
+                        // New Conversation button
+                        IconButton(
+                            onClick = { showNewChatDialog = true },
+                            modifier = Modifier.testTag("new_chat_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AddComment,
+                                contentDescription = "گفتوگۆی نوێ",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
                         // Quick 4-7-8 Breathing Exercise button
                         IconButton(
                             onClick = { viewModel.openBreathingDialog() },
@@ -193,6 +215,18 @@ fun ChatScreen(
                             )
                         }
 
+                        // Settings button
+                        IconButton(
+                            onClick = { viewModel.navigateTo(AppScreen.SETTINGS) },
+                            modifier = Modifier.testTag("settings_action_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "ڕێکخستنەکان",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
                         // Overflow Menu
                         IconButton(
                             onClick = { showMenu = !showMenu },
@@ -208,6 +242,20 @@ fun ChatScreen(
                             expanded = showMenu,
                             onDismissRequest = { showMenu = false }
                         ) {
+                            DropdownMenuItem(
+                                text = { Text("ڕێکخستنەکان و کلیلی API ⚙️") },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.navigateTo(AppScreen.SETTINGS)
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("گفتوگۆی نوێ ➕") },
+                                onClick = {
+                                    showMenu = false
+                                    showNewChatDialog = true
+                                }
+                            )
                             DropdownMenuItem(
                                 text = { Text("ڕاهێنانی هەناسەدان 🧘") },
                                 onClick = {
@@ -339,7 +387,10 @@ fun ChatScreen(
                     .testTag("chat_messages_list")
             ) {
                 items(messages, key = { it.id }) { message ->
-                    ChatBubble(message = message)
+                    ChatBubble(
+                        message = message,
+                        onRegenerate = { viewModel.regenerateResponse(it) }
+                    )
                 }
 
                 if (isLoading) {
@@ -351,6 +402,40 @@ fun ChatScreen(
         }
 
         // Dialogs
+        if (showNewChatDialog) {
+            AlertDialog(
+                onDismissRequest = { showNewChatDialog = false },
+                title = {
+                    Text(
+                        text = "دەستپێکردنی گفتوگۆی نوێ 🧠",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                },
+                text = {
+                    Text(
+                        text = "ئایا دڵنیایت دەتەوێت گفتوگۆیەکی نوێ دەست پێبکەیت؟ چاتەکە پاکدەکرێتەوە و لە سەرەتاوە لەگەڵ دکتۆر بەستە دەستپێدەکەیتەوە.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showNewChatDialog = false
+                            viewModel.clearChat()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Text("بەڵێ، دەستپێکردنەوە")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showNewChatDialog = false }) {
+                        Text("پەشیمانبوونەوە")
+                    }
+                }
+            )
+        }
+
         if (showBreathing) {
             BreathingExerciseDialog(onDismiss = { viewModel.closeBreathingDialog() })
         }

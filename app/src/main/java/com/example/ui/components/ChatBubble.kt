@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
@@ -57,6 +58,7 @@ import java.util.Locale
 @Composable
 fun ChatBubble(
     message: ChatMessage,
+    onRegenerate: ((ChatMessage) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -213,7 +215,23 @@ fun ChatBubble(
                         )
 
                         if (!isUser) {
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            if (onRegenerate != null && !message.isCrisisWarning) {
+                                IconButton(
+                                    onClick = { onRegenerate(message) },
+                                    modifier = Modifier.size(24.dp).testTag("regenerate_button_${message.id}")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = "نوێکردنەوەی وەڵام",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(4.dp))
+                            }
+
                             IconButton(
                                 onClick = {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -221,13 +239,13 @@ fun ChatBubble(
                                     clipboard.setPrimaryClip(clip)
                                     Toast.makeText(context, "ئامۆژگارییەکە کۆپیکرا", Toast.LENGTH_SHORT).show()
                                 },
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(24.dp).testTag("copy_button_${message.id}")
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ContentCopy,
                                     contentDescription = "کۆپیکردن",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(13.dp)
+                                    modifier = Modifier.size(15.dp)
                                 )
                             }
                         }
